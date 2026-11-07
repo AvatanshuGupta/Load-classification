@@ -22,7 +22,15 @@ class DecisionTree:
         self.root=None
 
     def fit(self, X, y):
-        self.n_features = X.shape[1] if not self.n_features else min(X.shape[1],self.n_features)
+        if hasattr(X, "values"):
+                X = X.values
+
+        y = np.asarray(y)
+        
+        if self.n_features is None:
+            self.n_features = max(1, int(np.sqrt(X.shape[1])))
+        else:
+            self.n_features = min(X.shape[1], self.n_features)
         self.root = self._grow_tree(X, y)
 
     def _grow_tree(self, X, y, depth=0):
@@ -52,6 +60,12 @@ class DecisionTree:
 
         for feat_idx in feat_idxs:
             X_column = X[:, feat_idx]
+
+            thresholds = np.percentile(
+            X_column,
+            np.linspace(10, 90, 20)
+        )
+
             thresholds = np.unique(X_column)
 
             for thr in thresholds:
@@ -123,8 +137,14 @@ class RandomForest:
         self.trees = []
 
     def fit(self, X, y):
+        if hasattr(X, "values"):
+            X = X.values
+
+        y = np.asarray(y)
         self.trees = []
         for _ in range(self.n_trees):
+
+            print(f"Training tree {_ + 1}/{self.n_trees}")
             tree = DecisionTree(max_depth=self.max_depth,
                             min_samples_split=self.min_samples_split,
                             n_features=self.n_features)
@@ -143,6 +163,13 @@ class RandomForest:
         return most_common
 
     def predict(self, X):
+        if hasattr(X, "values"):
+            X = X.values
+
+        predictions = np.array([
+            tree.predict(X)
+            for tree in self.trees
+        ])
         predictions = np.array([tree.predict(X) for tree in self.trees])
         tree_preds = np.swapaxes(predictions, 0, 1)
         predictions = np.array([self._most_common_label(pred) for pred in tree_preds])
