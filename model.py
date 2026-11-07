@@ -38,7 +38,7 @@ class DecisionTree:
         n_labels = len(np.unique(y))
 
         # check the stopping criteria
-        if (depth>=self.max_depth or n_labels==1 or n_samples<self.min_samples_split):
+        if (depth>= self.max_depth or n_labels== 1 or n_samples < self.min_samples_split):
             leaf_value = self._most_common_label(y)
             return Node(value=leaf_value)
 
@@ -73,9 +73,9 @@ class DecisionTree:
                 gain = self._information_gain(y, X_column, thr)
 
                 if gain > best_gain:
-                    best_gain = gain
-                    split_idx = feat_idx
-                    split_threshold = thr
+                    best_gain=gain
+                    split_idx=feat_idx
+                    split_threshold=thr
 
         return split_idx, split_threshold
 
@@ -145,9 +145,7 @@ class RandomForest:
         for _ in range(self.n_trees):
 
             print(f"Training tree {_ + 1}/{self.n_trees}")
-            tree = DecisionTree(max_depth=self.max_depth,
-                            min_samples_split=self.min_samples_split,
-                            n_features=self.n_features)
+            tree = DecisionTree(max_depth=self.max_depth,min_samples_split=self.min_samples_split,n_features=self.n_features)
             X_sample, y_sample = self._bootstrap_samples(X, y)
             tree.fit(X_sample, y_sample)
             self.trees.append(tree)
